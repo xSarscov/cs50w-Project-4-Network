@@ -27,4 +27,14 @@ class Comment(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self) -> str:
+        return f'{self.user.username} said "{self.post.content} at {self.timestamp}'
+
+class Following (models.Model):
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.follower.username} follows {self.following.username} since {self.timestamp}'
 
