@@ -1,5 +1,27 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
-    TODO
+    <div class="container-fluid">
+        <h2>All posts</h2>
+        
+        {% if user.is_authenticated %}
+        <div class="card">
+            <div class="card-body">
+                <form method="post" id="new-post-form">
+                    {% csrf_token %}
+                    <div class="form-group mb-2">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">{{ form.content.label }}</label>
+                        {{ form.content }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+
+    </div>
+
+    <script src="{% static 'network/index.js' %}"></script>
 {% endblock %}

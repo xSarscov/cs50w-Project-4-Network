@@ -1,16 +1,51 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
-from .models import User
-
+from .models import User, Post
+from .forms import PostForm
 
 def index(request):
-    return render(request, "network/index.html")
+    form = PostForm()
+    return render(request, "network/index.html", {
+        'form': form
+    })
+
+@login_required
+def create_post(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            form = PostForm(data)
+            
+            if form.is_valid():
+                content = form.cleaned_data['content']
+                Post.objects.create(user=request.user, content=content)
+
+                return JsonResponse({"message": "Post created successfully."}, status=201)
+            else:
+                return JsonResponse({
+                "error": form.errors.get('content', 'Something went wrong. Please try again :c')
+                }, status=400)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format in the request."}, status=400)
+        
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+@login_required
+def get_posts(request):
+    posts = Post.objects.all().order_by('-timestamp')
+    return JsonResponse([post.serialize() for post in posts], safe=False)
 
 
+
+# Auth
 def login_view(request):
     if request.method == "POST":
 

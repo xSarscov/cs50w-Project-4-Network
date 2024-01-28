@@ -10,8 +10,16 @@ class Post(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user": self.user.username,
+            "content": self.content,
+            "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p")
+        }
+
     def __str__(self) -> str:
-        return f'{self.user.username} - {self.timestamp}'
+        return f'{self.user.username} - {self.timestamp.strftime("%b %d %Y, %I:%M %p")}'
 
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
