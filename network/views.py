@@ -39,10 +39,33 @@ def create_post(request):
         return JsonResponse({"error": "Invalid request method."}, status=405)
 
 @login_required
-def get_posts(request):
+def get_all_posts(request):
     posts = Post.objects.all().order_by('-timestamp')
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
+@login_required
+def profile(request, username):
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return render(request, 'network/profile.html', {"error": "This account doesn’t exist. Try searching for another."})
+
+    profile = {
+        "is_owner": user == request.user,
+        "name": user.first_name,
+        "username": user.username,
+        "bio": user.biography if user.biography else 'No bio yet' ,
+        "posts_number": user.posts.count(),
+        "followers": user.followers.count(),
+        "following": user.following.count(), 
+        "posts": user.posts.all(),
+    }
+
+    return render(request, 'network/profile.html', {
+        "profile": profile,
+    })
+    
 
 
 # Auth
@@ -74,6 +97,7 @@ def logout_view(request):
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
+        name = request.POST["name"]
         email = request.POST["email"]
 
         # Ensure password matches confirmation
@@ -86,7 +110,7 @@ def register(request):
 
         # Attempt to create new user
         try:
-            user = User.objects.create_user(username, email, password)
+            user = User.objects.create_user(username, email, password, first_name=name)
             user.save()
         except IntegrityError:
             return render(request, "network/register.html", {

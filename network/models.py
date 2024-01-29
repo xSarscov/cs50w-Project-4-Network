@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    biography = models.CharField(max_length=150, blank=True, null=True)
 
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
@@ -13,7 +13,7 @@ class Post(models.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "user": self.user.username,
+            "username": self.user.username,
             "content": self.content,
             "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p")
         }
