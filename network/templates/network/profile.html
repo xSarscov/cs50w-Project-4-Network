@@ -3,7 +3,7 @@
 
 {% block body %}
 
-<div class="shadow rounded overflow-hidden mt-2">
+<div class="rounded mt-2" id="profile">
     <div class="px-4 pt-0 cover">
         <div class="media d-inline-block profile-head position-relative">
             <div class="profile mr-3 d-flex justify-content-between">
@@ -15,61 +15,13 @@
             </div>
             <div class="media-body mb-3 ">
                 
-                <h4 class="mt-0 mb-0">{{ profile.name }}</h4>
-                <p class="small mb-4"> <i class="fas fa-map-marker-alt mr-2"></i>@{{ profile.username }}</p>
+                <h4 class="mt-0 mb-0" id="profile-name" data-username="{{ username }}"></h4>
+                <p class="small mb-4" id="profile-username"></p>
                 
             </div>  
         </div>
     </div>
-    <div class="px-4 d-flex flex-column align-items-end text-center stats">
-        {% if not profile.is_owner %}
-        <div class="mb-0">
-            <button class="btn btn-light rounded-pill">Follow</button>
-        </div>
-        {% endif %}
-        <ul class="list-inline mb-0">
-            <li class="list-inline-item">
-                <h5 class="font-weight-bold mb-0 d-block">{{ profile.posts_number }}</h5>
-                <small class="text-muted"> <i class="fas fa-image mr-1"></i>Posts</small>
-            </li>
-            <li class="list-inline-item">
-                <h5 class="font-weight-bold mb-0 d-block">{{ profile.followers }}</h5>
-                <small class="text-muted"> <i class="fas fa-user mr-1"></i>Followers</small>
-            </li>
-            <li class="list-inline-item">
-                <h5 class="font-weight-bold mb-0 d-block">{{ profile.following }}</h5>
-                <small class="text-muted"> <i class="fas fa-user mr-1"></i>Following</small>
-            </li>
-        </ul>
-    </div>
-    <div class="px-4 py-3 ">
-        <h5 class="mb-0">About</h5>
-        <div class="py-4 rounded shadow-sm">
-            <p class="font-italic mb-0">{{ profile.bio }}</p>
-        </div>
-    </div>
-    
-    <hr>
+</div>
 
-    <div class="py-4 px-4">
-        
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <h5 class="mb-0">Recent posts</h5>
-        </div>
-        <div class="row">
-            {% for post in profile.posts %}
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <a href="{% url 'profile' post.user.username %}" class="link-body-emphasis link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
-                            @{{ post.user.username }}
-                        </a>
-                    </h5>
-                    <p class="card-text">{{ post.content }}</p>
-                    <h6 class="card-subtitle mb-2 text-body-secondary">{{ post.timestamp }}</h6>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
+<script src="{% static 'network/profile.js' %}"></script>
 {% endblock %}

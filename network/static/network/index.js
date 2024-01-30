@@ -47,7 +47,7 @@ function getPosts(feed) {
             const postBody = `
             <div class="card-body">
               <h5 class="card-title">
-                <a href="/profile/${post.username}" class="link-body-emphasis link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
+                <a href="/${post.username}" class="link-body-emphasis link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
                     @${post.username}
                 </a>
               </h5>

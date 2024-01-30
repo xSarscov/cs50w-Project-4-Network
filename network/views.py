@@ -20,6 +20,12 @@ def following(request):
     return render(request, "network/following.html")
 
 @login_required
+def profile(request, username):
+    return render(request, "network/profile.html", {
+        "username": username
+    })
+
+@login_required
 def create_post(request):
     if request.method == 'POST':
         try:
@@ -52,13 +58,12 @@ def get_following_posts(request):
     posts = Post.objects.filter(user__in=followed_users)
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
-@login_required
-def profile(request, username):
+def get_profile(request, username):
 
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return render(request, 'network/profile.html', {"error": "This account doesn’t exist. Try searching for another."})
+        return JsonResponse({"error": "This account doesn’t exist. Try searching for another."}, status=400)
 
     profile = {
         "is_owner": user == request.user,
@@ -68,12 +73,10 @@ def profile(request, username):
         "posts_number": user.posts.count(),
         "followers": user.followers.count(),
         "following": user.following.count(), 
-        "posts": user.posts.all(),
+        "posts": [post.serialize() for post in user.posts.all()],
     }
 
-    return render(request, 'network/profile.html', {
-        "profile": profile,
-    })
+    return JsonResponse(profile, safe=False)
     
 
 
