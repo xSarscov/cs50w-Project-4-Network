@@ -2,25 +2,25 @@
 {% load static %}
 
 {% block body %}
-    <div class="container-fluid" id="feed">
+    <div class="container-fluid">
         <h2 class="my-3">All posts</h2>
         
-            {% if user.is_authenticated %}
-            <div class="card mb-2">
-                <div class="card-body">
-                    <form method="post" id="new-post-form">
-                        {% csrf_token %}
-                        <div class="form-group mb-2">
-                            <label for="{{ form.content.id_for_label }}" class="form-label">{{ form.content.label }}</label>
-                            {{ form.content }}
-                        </div>
-                        <button type="submit" class="btn btn-primary">Post</button>
-                    </form>
-                </div>
+        {% if user.is_authenticated %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <form method="post" id="new-post-form">
+                    {% csrf_token %}
+                    <div class="form-group mb-2">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">{{ form.content.label }}</label>
+                        {{ form.content }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </form>
             </div>
-            {% endif %}
-            <hr>
-
+        </div>
+        {% endif %}
+        <hr>
+        <div id="feed"></div>
 
     </div>
 

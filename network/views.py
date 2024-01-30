@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-from .models import User, Post
+from .models import User, Post, Following
 from .forms import PostForm
 
 def index(request):
@@ -14,6 +14,10 @@ def index(request):
     return render(request, "network/index.html", {
         'form': form
     })
+
+@login_required
+def following(request):
+    return render(request, "network/following.html")
 
 @login_required
 def create_post(request):
@@ -38,9 +42,14 @@ def create_post(request):
     else:
         return JsonResponse({"error": "Invalid request method."}, status=405)
 
-@login_required
 def get_all_posts(request):
     posts = Post.objects.all().order_by('-timestamp')
+    return JsonResponse([post.serialize() for post in posts], safe=False)
+
+@login_required
+def get_following_posts(request):
+    followed_users = User.objects.filter(followers__follower=request.user)
+    posts = Post.objects.filter(user__in=followed_users)
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
 @login_required

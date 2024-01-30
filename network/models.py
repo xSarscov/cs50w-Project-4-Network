@@ -27,7 +27,7 @@ class Like(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return f'{self.user.username} likes {self.post_liked.content} at {self.timestamp}'
+        return f'{self.user.username} likes {self.post_liked.content} at {self.timestamp.strftime("%b %d %Y, %I:%M %p")}'
     
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -36,7 +36,7 @@ class Comment(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return f'{self.user.username} said "{self.post.content} at {self.timestamp}'
+        return f'{self.user.username} said "{self.post.content} at {self.timestamp.strftime("%b %d %Y, %I:%M %p")}'
 
 class Following (models.Model):
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
@@ -44,5 +44,5 @@ class Following (models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.follower.username} follows {self.following.username} since {self.timestamp}'
+        return f'{self.follower.username} follows {self.following.username} since {self.timestamp.strftime("%b %d %Y, %I:%M %p")}'
 
