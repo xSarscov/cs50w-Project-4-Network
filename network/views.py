@@ -53,6 +53,23 @@ def get_all_posts(request):
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
 @login_required
+def edit_post(request, post_id):
+    if request.method == 'PUT':
+        post = get_object_or_404(Post, id=post_id, user=request.user)
+
+        if post.user == request.user:
+            data = json.loads(request.body)
+            new_content = data.get("content", "")
+            post.content = new_content
+            post.save()
+            return JsonResponse({"new_content": new_content}, safe=False)
+        else:
+            return HttpResponse(status=403)
+        
+    return JsonResponse({'error': 'Invalid request method or post not found.'}, status=400)
+
+
+@login_required
 def get_following_posts(request):
     followed_users = User.objects.filter(followers__follower=request.user)
     posts = Post.objects.filter(user__in=followed_users)
@@ -86,22 +103,26 @@ def get_profile(request, username):
 
 @login_required
 def toggle_follow(request, username):
-    if request.method == 'GET':
+    if request.method == 'PUT':
         user_profile = get_object_or_404(User, username=username)
-        follow, created = Following.objects.get_or_create(follower=request.user, following=user_profile)
 
-        if created:
-            is_following = True
+        if user_profile != request.user:
+            follow, created = Following.objects.get_or_create(follower=request.user, following=user_profile)
+
+            if created:
+                is_following = True
+            else:
+                follow.delete()
+                is_following = False
+
+            result = {
+                "followers_count": user_profile.followers.count(),
+                "is_following": is_following
+            }
+
+            return JsonResponse(result, safe=False)
         else:
-            follow.delete()
-            is_following = False
-
-        result = {
-            "followers_count": user_profile.followers.count(),
-            "is_following": is_following
-        }
-
-        return JsonResponse(result, safe=False)
+            HttpResponse(status=403)
 
     else:
         return JsonResponse({
