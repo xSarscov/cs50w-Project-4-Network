@@ -2,7 +2,7 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
@@ -58,6 +58,7 @@ def get_following_posts(request):
     posts = Post.objects.filter(user__in=followed_users)
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
+@login_required
 def get_profile(request, username):
 
     try:
@@ -65,8 +66,10 @@ def get_profile(request, username):
     except User.DoesNotExist:
         return JsonResponse({"error": "This account doesn’t exist. Try searching for another."}, status=400)
 
+    is_owner = user == request.user
+
     profile = {
-        "is_owner": user == request.user,
+        "is_owner": is_owner,
         "name": user.first_name,
         "username": user.username,
         "bio": user.biography if user.biography else 'No bio yet' ,
@@ -76,8 +79,34 @@ def get_profile(request, username):
         "posts": [post.serialize() for post in user.posts.all()],
     }
 
+    if not is_owner:
+        is_following = Following.objects.filter(follower=request.user, following=user)
+        profile.update({"is_following": True if is_following else False})
     return JsonResponse(profile, safe=False)
-    
+
+@login_required
+def toggle_follow(request, username):
+    if request.method == 'GET':
+        user_profile = get_object_or_404(User, username=username)
+        follow, created = Following.objects.get_or_create(follower=request.user, following=user_profile)
+
+        if created:
+            is_following = True
+        else:
+            follow.delete()
+            is_following = False
+
+        result = {
+            "followers_count": user_profile.followers.count(),
+            "is_following": is_following
+        }
+
+        return JsonResponse(result, safe=False)
+
+    else:
+        return JsonResponse({
+            "error": "GET request required."
+        }, status=400)
 
 
 # Auth

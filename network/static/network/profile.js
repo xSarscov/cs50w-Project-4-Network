@@ -38,7 +38,7 @@ fetch(`/get_profile/${username}`)
     <div class="px-4 d-flex flex-column align-items-end text-center stats">
         ${!profile.is_owner ? ` 
             <div class="mb-0">
-                <button class="btn btn-light rounded-pill" id="follow">Follow</button>
+                <button class="btn btn-light rounded-pill" id="follow">${profile.is_following ? 'Unfollow' : 'Follow'}</button>
             </div>` : ''
         }
         <ul class="list-inline mb-0">
@@ -47,7 +47,7 @@ fetch(`/get_profile/${username}`)
                 <small class="text-muted"> <i class="fas fa-image mr-1"></i>Posts</small>
             </li>
             <li class="list-inline-item">
-                <h5 class="font-weight-bold mb-0 d-block">${profile.followers}</h5>
+                <h5 class="font-weight-bold mb-0 d-block" id="followers">${profile.followers}</h5>
                 <small class="text-muted"> <i class="fas fa-user mr-1"></i>Followers</small>
             </li>
             <li class="list-inline-item">
@@ -77,27 +77,27 @@ fetch(`/get_profile/${username}`)
     `;
     profilePage.innerHTML = profilePageBody;
     profilePageContainer.appendChild(profilePage);
+    
+    if (!profile.is_owner) {
+
+        const followButton = document.querySelector('#follow');
+    
+        followButton.addEventListener('click', () => {
+            fetch(`/toggle_follow/${profile.username}`)
+            .then(response => response.json())
+            .then(result => {
+                const followerCount = document.querySelector('#followers');
+                followerCount.innerHTML = result.followers_count;
+                followButton.innerHTML = result.is_following ? 'Unfollow' : 'Follow'
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
 })
 .catch(error => {
     console.error('Error fetching profile:', error);
 });
 
-
-// const followButton = document.querySelector('#follow');
-
-// followButton.addEventListener('click', () => {
-
-//     fetch(`/profile/${email.id}`, {
-//         method: 'PUT',
-//         body: JSON.stringify({
-//             archived: !email.archived ? true : false
-//         })
-//     })
-//     .then(() => {
-//         load_mailbox('inbox')
-//       })
-//     .catch(error => {
-//         console.error('Error:', error);
-//     });
-
-// });
