@@ -11,7 +11,6 @@ class Post(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def serialize(self, current_user=None):
-        print(current_user)
         return {
             "id": self.id,
             "username": self.user.username,
