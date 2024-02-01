@@ -10,12 +10,15 @@ class Post(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def serialize(self):
+    def serialize(self, current_user=None):
+        print(current_user)
         return {
             "id": self.id,
             "username": self.user.username,
             "content": self.content,
-            "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p")
+            "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p"),
+            "likes": self.likes.count(),
+            "is_liked_by_current_user": current_user.is_authenticated and self.likes.filter(user=current_user).exists(),
         }
 
     def __str__(self) -> str:
@@ -23,7 +26,7 @@ class Post(models.Model):
 
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post_liked = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post_liked = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:

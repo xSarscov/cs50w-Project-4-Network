@@ -5,8 +5,9 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
-from .models import User, Post, Following
+from .models import User, Post, Following, Like
 from .forms import PostForm
 
 def index(request):
@@ -50,7 +51,18 @@ def create_post(request):
 
 def get_all_posts(request):
     posts = Post.objects.all().order_by('-timestamp')
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+
+    posts_paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = posts_paginator.get_page(page_number)
+
+    serialized_posts = [post.serialize(request.user) for post in page_obj]
+
+    return JsonResponse({
+        'posts': serialized_posts,
+        'total_pages': posts_paginator.num_pages,
+        'is_current_user_authenticated': request.user.is_authenticated
+    }, safe=False)
 
 @login_required
 def edit_post(request, post_id):
@@ -66,7 +78,7 @@ def edit_post(request, post_id):
         else:
             return HttpResponse(status=403)
         
-    return JsonResponse({'error': 'Invalid request method or post not found.'}, status=400)
+    return HttpResponse(status=403)
 
 
 @login_required
@@ -93,12 +105,13 @@ def get_profile(request, username):
         "posts_number": user.posts.count(),
         "followers": user.followers.count(),
         "following": user.following.count(), 
-        "posts": [post.serialize() for post in user.posts.all()],
+        "posts": [post.serialize(request.user) for post in user.posts.all()],
     }
 
     if not is_owner:
         is_following = Following.objects.filter(follower=request.user, following=user)
         profile.update({"is_following": True if is_following else False})
+    
     return JsonResponse(profile, safe=False)
 
 @login_required
@@ -129,7 +142,33 @@ def toggle_follow(request, username):
             "error": "GET request required."
         }, status=400)
 
+@login_required
+def toggle_like(request, post_id):
+    if request.method == 'PUT':
+        post_target = get_object_or_404(Post, id=post_id)
+        
+        like, created = Like.objects.get_or_create(post_liked=post_target, user=request.user)
 
+        if created:
+            is_liked = True
+        else:
+            like.delete()
+            is_liked = False
+
+        likes_count = post_target.likes.count()
+
+        result = {
+            "likes_count": likes_count,
+            "is_liked": is_liked
+        }
+
+        return JsonResponse(result, safe=False)
+    
+    else:
+        return JsonResponse({
+            "error": "PUT request required."
+        }, status=400)
+        
 # Auth
 def login_view(request):
     if request.method == "POST":

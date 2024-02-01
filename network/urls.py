@@ -13,10 +13,11 @@ urlpatterns = [
     # API routes
     path("posts", views.get_all_posts, name="posts"),
     path("create_post", views.create_post, name="create_post"),
+    path("edit_post/<int:post_id>", views.edit_post, name="edit_post"),
     path("following_posts", views.get_following_posts, name="following_posts"),
+    path("toggle_like/<int:post_id>", views.toggle_like, name="toggle_like"),
     path("get_profile/<str:username>", views.get_profile, name="get_profile"),
     path("toggle_follow/<str:username>", views.toggle_follow, name="toggle_follow"),
-    path("edit_post/<int:post_id>", views.edit_post, name="edit_post"),
     
     path("<str:username>", views.profile, name="profile"),
 ]
