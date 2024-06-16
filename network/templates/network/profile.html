@@ -1,0 +1,26 @@
+{% extends "network/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+
+<div id="profile-container"></div>
+
+<hr>
+
+<h1>All posts</h1>
+
+<div id="feed"></div>
+
+<nav aria-label="...">
+    <ul class="pagination pagination-lg" id="paginator-container"></ul>
+</nav>
+
+<script>
+    const username = "{{ username }}";
+    const currentUser = "{{ request.user.username }}";
+    const csrftoken = '{{ csrf_token }}';
+</script>
+
+<script type="module" src="{% static 'network/pages/profile.js' %}"></script>
+{% endblock %}

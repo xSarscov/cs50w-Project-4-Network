@@ -1,0 +1,30 @@
+{% extends "network/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+<form method="post" class="card p-3" id="new-post-form">
+
+    <label for="content" class="form-label">New post</label>
+    <textarea class="form-control" id="content" rows="2" placeholder="What's on your mind?"></textarea>
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-primary mt-2 w-25">Post</button>
+    </div>
+</form>
+
+<hr>
+
+<h1>All posts</h1>
+
+<div id="feed"></div>
+
+<nav aria-label="...">
+    <ul class="pagination pagination-lg" id="paginator-container"></ul>
+</nav>
+
+<script>
+    const currentUser = "{{ request.user.username }}";
+</script>
+
+<script type="module" src="{% static 'network/pages/index.js' %}"></script>
+{% endblock %}

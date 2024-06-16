@@ -1,0 +1,20 @@
+{% extends "network/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+<h1>Following posts</h1>
+
+<div id="feed"></div>
+
+<nav aria-label="...">
+    <ul class="pagination pagination-lg" id="paginator-container"></ul>
+</nav>
+
+<script>
+    const currentUser = "{{ request.user.username }}";
+    const csrftoken = '{{ csrf_token }}';
+</script>
+
+<script type="module" src="{% static 'network/pages/following.js' %}"></script>
+{% endblock %}
